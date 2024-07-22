@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Diba.Infra.Core.Market" Version="2.0.1" />
+		<PackageReference Include="Diba.Infra.Core.Trading" Version="1.9.5" />
+	</ItemGroup>
+
+	<ItemGroup>
+    <ProjectReference Include="..\QueryGenerator\QueryGenerator.csproj" />
+  </ItemGroup>
+
+</Project>
