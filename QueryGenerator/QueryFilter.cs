@@ -38,6 +38,7 @@ public class QueryFilter<T>
         foreach (var column in _columns)
         {
             var queryResult = column.GenerateQuery(instance);
+            if (queryResult is null) continue;
 
             whereCaluse.Add(queryResult.Query);
             sqlParameters.AddRange(queryResult.Parameters);

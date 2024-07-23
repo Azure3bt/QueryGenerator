@@ -1,4 +1,6 @@
-﻿namespace QueryableDtos;
+﻿using Diba.Infra.Core.Market.Enums;
+
+namespace QueryableDtos;
 
 internal class InstrumentFilterDto
 {

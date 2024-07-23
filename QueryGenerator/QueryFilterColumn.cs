@@ -46,7 +46,7 @@ public class QueryFilterColumn
 
     public QueryFilterColumn GetValue<T>(Func<T, object> valueGetter)
     {
-        _valueGetter = x => _valueGetter;
+        _valueGetter = obj => valueGetter((T)obj);
         return this;
     }
 
@@ -58,6 +58,7 @@ public class QueryFilterColumn
         var value = _valueGetter(instance);
         if (value is not null)
         {
+            Console.WriteLine(value);
             var whereClauseTemp = new StringBuilder();
             var fields = Fields;
             var parameterNames = fields;
