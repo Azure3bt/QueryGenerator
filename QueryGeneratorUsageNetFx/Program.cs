@@ -1,7 +1,7 @@
 ﻿using QueryableDtos;
 using System;
 
-namespace QueryGeneratorUsaageNetFx
+namespace QueryGeneratorUsageNetFx
 {
     internal class Program
     {
