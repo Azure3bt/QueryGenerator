@@ -69,6 +69,15 @@ public class QueryFilterColumn
 
             var parameterName = parameterNames.Single();
             if (sqlParameters.ContainsKey(parameterName)) throw new QueryGeneratorException("You can't define two field same name");
+            //Support % wildcard in whole of string value
+            //Must plan support other LIKE operator wildcard
+            if ((Operator == QueryOperator.Like  || Operator == QueryOperator.NotLike) &&
+                (FieldType is System.Data.SqlDbType.NVarChar
+                || FieldType is System.Data.SqlDbType.NChar
+                || FieldType is System.Data.SqlDbType.VarChar
+                || FieldType is System.Data.SqlDbType.Char))
+                value = $"%{value}%";
+
             sqlParameters[parameterName] = new SqlParameter($"@{parameterName}", value) { SqlDbType = FieldType };
 
             if (HasJoin ?? false)
