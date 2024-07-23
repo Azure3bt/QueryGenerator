@@ -58,7 +58,6 @@ public class QueryFilterColumn
         var value = _valueGetter(instance);
         if (value is not null)
         {
-            Console.WriteLine(value);
             var whereClauseTemp = new StringBuilder();
             var fields = Fields;
             var parameterNames = fields;
