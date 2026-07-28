@@ -7,11 +7,11 @@ using System.Text;
 
 namespace QueryGenerator;
 
-public class QueryFilterColumn
+public class QueryFilterColumn<T>
 {
     private const char Delimiter = ',';
     private string[] Fields { get; set; }
-    private string? QueryField { get; set; }
+    private string QueryField { get; set; } = default!;
     private SqlDbType FieldType { get; set; }
     private QueryOperator Operator { get; set; }
     private bool? HasJoin { get; set; } = false;
@@ -28,7 +28,7 @@ public class QueryFilterColumn
         Operator = @operator;
     }
 
-    public QueryFilterColumn(string fieldName, string? queryField, SqlDbType sqlDbType, QueryOperator @operator) : this(fieldName, sqlDbType, @operator)
+    public QueryFilterColumn(string fieldName, string queryField, SqlDbType sqlDbType, QueryOperator @operator) : this(fieldName, sqlDbType, @operator)
     {
         QueryField = queryField;
     }
@@ -44,13 +44,13 @@ public class QueryFilterColumn
         JoinColumn = joinColumn;
     }
 
-    public QueryFilterColumn GetValue<T>(Func<T, object> valueGetter)
+    public QueryFilterColumn<T> GetValue(Func<T, object> valueGetter)
     {
         _valueGetter = obj => valueGetter((T)obj);
         return this;
     }
 
-    internal QueryResult GenerateQuery<T>(T instance)
+    internal QueryResult<T> GenerateQuery(T instance)
     {
         var sqlParameters = new Dictionary<string, SqlParameter>();
         var joinClause = string.Empty;
@@ -87,7 +87,9 @@ public class QueryFilterColumn
             var sqlQuery = $"{string.Join(" ", joinClause.ToArray())}";
             if (whereClause.Any())
                 sqlQuery = $"{sqlQuery} {string.Join(" AND ", whereClause)}";
-            return new QueryResult(sqlQuery, sqlParameters.Values);
+
+            var expression = PredicateBuilder.True<T>();
+            return new QueryResult<T>(expression, sqlParameters.Values);
         }
 
         return default;
