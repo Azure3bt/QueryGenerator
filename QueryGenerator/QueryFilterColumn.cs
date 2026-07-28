@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace QueryGenerator;
@@ -54,18 +55,17 @@ public class QueryFilterColumn<T>
     {
         var sqlParameters = new Dictionary<string, SqlParameter>();
         var joinClause = string.Empty;
-        var whereClause = new List<string>();
+        var whereClause = PredicateBuilder.False<T>();
         var value = _valueGetter(instance);
         if (value is not null)
         {
-            var whereClauseTemp = new StringBuilder();
             var fields = Fields;
             var parameterNames = fields;
             if (QueryField is not null)
                 parameterNames = [QueryField];
 
             if (parameterNames.Count() > 1)
-                throw new QueryGeneratorException("You can't define two parameter");
+                throw new QueryGeneratorException("You can't define two  or more parameters");
 
             var parameterName = parameterNames.Single();
             if (sqlParameters.ContainsKey(parameterName)) throw new QueryGeneratorException("You can't define two field same name");
@@ -81,15 +81,23 @@ public class QueryFilterColumn<T>
             sqlParameters[parameterName] = new SqlParameter($"@{parameterName}", value) { SqlDbType = FieldType };
 
             if (HasJoin ?? false)
-                joinClause = $" INNER JOIN {JoinTable} AS _{JoinTable} ON _{JoinTable}.{JoinColumn} = {Fields} ";
+            {
+                throw new NotSupportedException("Join is not supported");
+                //joinClause = $" INNER JOIN {JoinTable} AS _{JoinTable} ON _{JoinTable}.{JoinColumn} = {Fields} ";
+            }
 
-            whereClause.Add($"({string.Join(" OR ", fields.Select(field => $"{field}{Operator.GetDisplayValue()}@{parameterName}"))})");
-            var sqlQuery = $"{string.Join(" ", joinClause.ToArray())}";
-            if (whereClause.Any())
-                sqlQuery = $"{sqlQuery} {string.Join(" AND ", whereClause)}";
+            foreach(var field in fields)
+            {
+                whereClause = whereClause.Or(x => false);
 
-            var expression = PredicateBuilder.True<T>();
-            return new QueryResult<T>(expression, sqlParameters.Values);
+            }
+
+            //whereClause.Add($"({string.Join(" OR ", fields.Select(field => $"{field}{Operator.GetDisplayValue()}@{parameterName}"))})");
+            //var sqlQuery = $"{string.Join(" ", joinClause.ToArray())}";
+            //if (whereClause.Any())
+            //    sqlQuery = $"{sqlQuery} {string.Join(" AND ", whereClause)}";
+
+            return new QueryResult<T>(whereClause, sqlParameters.Values);
         }
 
         return default;
