@@ -1,85 +1,37 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
 
 namespace QueryGenerator;
 
-public class QueryFilterColumn<T>
+public class QueryFilterColumn<TModel, TEntity>
 {
     private const char Delimiter = ',';
-    private string[] Fields { get; set; }
-    private string QueryField { get; set; } = default!;
-    private SqlDbType FieldType { get; set; }
+    private IEnumerable<Func<TEntity, object>> Fields { get; set; }
     private QueryOperator Operator { get; set; }
     private bool? HasJoin { get; set; } = false;
-    private string JoinColumn { get; set; }
-    private string JoinTable { get; set; } = string.Empty;
-    private bool HasMultipleFields { get; set; } = false;
 
     private Func<object, object> _valueGetter;
 
-    public QueryFilterColumn(string fieldName, SqlDbType fieldType, QueryOperator @operator)
+    public QueryFilterColumn(IEnumerable<Func<TEntity, object>> fields, QueryOperator @operator)
     {
-        Fields = fieldName.Split(Delimiter);
-        FieldType = fieldType;
+        Fields = fields;
         Operator = @operator;
     }
 
-    public QueryFilterColumn(string fieldName, string queryField, SqlDbType sqlDbType, QueryOperator @operator) : this(fieldName, sqlDbType, @operator)
+    public QueryFilterColumn<TModel, TEntity> GetValue(Func<TModel, object> valueGetter)
     {
-        QueryField = queryField;
-    }
-
-    public QueryFilterColumn(string fieldName, string queryField, SqlDbType fieldType, QueryOperator @operator, bool hasMultiple) : this(fieldName, queryField,fieldType,@operator)
-    {
-        HasMultipleFields = hasMultiple;
-    }
-
-    public QueryFilterColumn(string fieldName, SqlDbType fieldType, QueryOperator @operator, bool hasJoin, string joinTable, string joinColumn) : this(fieldName, fieldType, @operator)
-    {
-        JoinTable = joinTable;
-        JoinColumn = joinColumn;
-    }
-
-    public QueryFilterColumn<T> GetValue(Func<T, object> valueGetter)
-    {
-        _valueGetter = obj => valueGetter((T)obj);
+        _valueGetter = obj => valueGetter((TModel)obj);
         return this;
     }
 
-    internal QueryResult<T> GenerateQuery(T instance)
+    internal QueryResult<TEntity> GenerateQuery(TModel instance)
     {
-        var sqlParameters = new Dictionary<string, SqlParameter>();
         var joinClause = string.Empty;
-        var whereClause = PredicateBuilder.False<T>();
+        var whereClause = PredicateBuilder.False<TEntity>();
         var value = _valueGetter(instance);
         if (value is not null)
         {
             var fields = Fields;
-            var parameterNames = fields;
-            if (QueryField is not null)
-                parameterNames = [QueryField];
-
-            if (parameterNames.Count() > 1)
-                throw new QueryGeneratorException("You can't define two  or more parameters");
-
-            var parameterName = parameterNames.Single();
-            if (sqlParameters.ContainsKey(parameterName)) throw new QueryGeneratorException("You can't define two field same name");
-            //Support % wildcard in whole of string value
-            //Must plan support other LIKE operator wildcard
-            if ((Operator == QueryOperator.Like  || Operator == QueryOperator.NotLike) &&
-                (FieldType is System.Data.SqlDbType.NVarChar
-                || FieldType is System.Data.SqlDbType.NChar
-                || FieldType is System.Data.SqlDbType.VarChar
-                || FieldType is System.Data.SqlDbType.Char))
-                value = $"%{value}%";
-
-            sqlParameters[parameterName] = new SqlParameter($"@{parameterName}", value) { SqlDbType = FieldType };
-
             if (HasJoin ?? false)
             {
                 throw new NotSupportedException("Join is not supported");
@@ -88,8 +40,7 @@ public class QueryFilterColumn<T>
 
             foreach(var field in fields)
             {
-                whereClause = whereClause.Or(x => false);
-
+                whereClause = whereClause.Or(x => field(x) == value);
             }
 
             //whereClause.Add($"({string.Join(" OR ", fields.Select(field => $"{field}{Operator.GetDisplayValue()}@{parameterName}"))})");
@@ -97,7 +48,7 @@ public class QueryFilterColumn<T>
             //if (whereClause.Any())
             //    sqlQuery = $"{sqlQuery} {string.Join(" AND ", whereClause)}";
 
-            return new QueryResult<T>(whereClause, sqlParameters.Values);
+            return new QueryResult<TEntity>(whereClause);
         }
 
         return default;

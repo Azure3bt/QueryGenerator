@@ -7,12 +7,10 @@ namespace QueryGenerator;
 
 public class QueryResult<T>
 {
-    public QueryResult(Expression<Func<T, bool>> query, IEnumerable<SqlParameter> parameters)
+    public QueryResult(Expression<Func<T, bool>> query)
     {
         Query = query;
-        Parameters = parameters;
     }
 
     public Expression<Func<T, bool>> Query { get; set; }
-    public IEnumerable<SqlParameter> Parameters { get; set; }
 }
