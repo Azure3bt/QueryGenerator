@@ -4,7 +4,7 @@ using System;
 
 namespace QueryGeneratorUsageNetFx
 {
-    internal class Program
+    internal static class Program
     {
         static void Main(string[] args)
         {
@@ -15,38 +15,38 @@ namespace QueryGeneratorUsageNetFx
 
             var queryFilter = new QueryFilter<InstrumentFilterDto>().Init("basicinfo.v2", "instrument")
                 .AddFilter(
-                    new QueryFilterColumn(
+                    new QueryFilterColumn<InstrumentFilterDto>(
                         "Isin",
                         System.Data.SqlDbType.NVarChar,
                         QueryOperator.Like
-                    ).GetValue<InstrumentFilterDto>(instrument => instrument.Isin)
+                    ).GetValue(instrument => instrument.Isin)
                 )
                 .AddFilter(
-                    new QueryFilterColumn(
+                    new QueryFilterColumn<InstrumentFilterDto>(
                         "NewInstrumentId,NewInstrumentName,NewInstrumentText",
                         "NewInstrumentFilter",
                         System.Data.SqlDbType.NVarChar,
                         QueryOperator.Like
                     )
-                    .GetValue<InstrumentFilterDto>(instrument => instrument.NewInstrumentFilter)
+                    .GetValue(instrument => instrument.NewInstrumentFilter)
                 )
                 .AddFilter(
-                    new QueryFilterColumn(
+                    new QueryFilterColumn<InstrumentFilterDto>(
                         "HiddenPrice",
                         "FromHiddenPrice",
                         System.Data.SqlDbType.BigInt,
                         QueryOperator.GreaterThanOrEqual
                     )
-                    .GetValue<InstrumentFilterDto>(instrument => instrument.FromHiddenPrice)
+                    .GetValue(instrument => instrument.FromHiddenPrice)
                 )
                 .AddFilter(
-                    new QueryFilterColumn(
+                    new QueryFilterColumn<InstrumentFilterDto>(
                         "HiddenPrice",
                         "ToHiddenPrice",
                         System.Data.SqlDbType.BigInt,
                         QueryOperator.LessThanOrEqual
                     )
-                    .GetValue<InstrumentFilterDto>(instrument => instrument.ToHiddenPrice)
+                    .GetValue(instrument => instrument.ToHiddenPrice)
                 );
 
 

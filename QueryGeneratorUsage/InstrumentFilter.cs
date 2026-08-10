@@ -1,9 +1,8 @@
-﻿using Diba.Infra.Core.Market.Enums;
-
-namespace QueryableDtos;
+﻿namespace QueryableDtos;
 
 internal class InstrumentFilterDto
 {
+    public string MarketName { get; set; }
     public string? InstrumentId { get; set; }
     public string? Code { get; set; }
     public string? Name { get; set; }
@@ -28,7 +27,7 @@ internal class InstrumentFilterDto
     public long? ToTick { get; set; }
     public long? FromSize { get; set; }
     public long? ToSize { get; set; }
-    public MarketSegment? Segment { get; set; }
+    //public MarketSegment? Segment { get; set; }
     public long? FromBaseVolume { get; set; }
     public long? ToBaseVolume { get; set; }
     public long? FromParValue { get; set; }
@@ -37,13 +36,13 @@ internal class InstrumentFilterDto
     public string? ProductTitle { get; set; }
     public string? ProductTypeCode1 { get; set; }
     public string? ProductTypeCode2 { get; set; }
-    public Borse? Bourse { get; set; }
+    //public Borse? Bourse { get; set; }
 
-    public SettlementType? SettlementType { get; set; }
+    //public SettlementType? SettlementType { get; set; }
     public string? GroupCode { get; set; }
     public string? GroupName { get; set; }
     //public GroupState? GroupState { get; set; }
-    public InstrumentState? State { get; set; }
+    //public InstrumentState? State { get; set; }
     public long? FromPriceMin { get; set; }
     public long? ToPriceMin { get; set; }
     public long? FromPriceMax { get; set; }
@@ -54,12 +53,12 @@ internal class InstrumentFilterDto
     public decimal? ToAskFeeRate { get; set; }
     public decimal? FromBidFeeRate { get; set; }
     public decimal? ToBidFeeRate { get; set; }
-    public ClassType? Class { get; set; }
-    public ClassChannel? Channel { get; set; }
+    //public ClassType? Class { get; set; }
+    //public ClassChannel? Channel { get; set; }
     public long? FromHiddenPrice { get; set; }
     public long? ToHiddenPrice { get; set; }
 
-    public HiddenPriceType? HiddenPriceType { get; set; }
+    //public HiddenPriceType? HiddenPriceType { get; set; }
     public DateTime? HiddenPriceFrom { get; set; }
     public DateTime? HiddenPriceTo { get; set; }
     public bool? IsBidPermitted { get; set; }

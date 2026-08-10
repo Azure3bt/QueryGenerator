@@ -1,21 +1,18 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace QueryGenerator;
 
-public class QueryFilter<T>
+public class QueryFilter<TModel, TEntity>
 {
     private string _schema;
     private string _table;
 
-    private IList<QueryFilterColumn> _columns = new List<QueryFilterColumn>();
+    private IList<QueryFilterColumn<TModel, TEntity>> _columns = new List<QueryFilterColumn<TModel, TEntity>>();
 
     private bool _isInit = false;
     private bool HasInit() => _isInit ? true : throw new QueryGeneratorException("object not initialize");
 
-    public QueryFilter<T> Init(string schema, string table)
+    public QueryFilter<TModel, TEntity> Init(string schema, string table)
     {
         _schema = schema;
         _table = table;
@@ -23,31 +20,25 @@ public class QueryFilter<T>
         return this;
     }
 
-    public QueryFilter<T> AddFilter(QueryFilterColumn column)
+    public QueryFilter<TModel, TEntity> AddFilter(QueryFilterColumn<TModel, TEntity> column)
     {
-        HasInit();
         _columns.Add(column);
+        HasInit();
 
         return this;
     }
 
-    public QueryResult GenerateQuery<T>(T instance)
+    public QueryResult<TEntity> Build(TModel instance)
     {
-        var whereCaluse = new List<string>();
-        var sqlParameters = new List<SqlParameter>();
+        var whereClause = PredicateBuilder.True<TEntity>();
         foreach (var column in _columns)
         {
             var queryResult = column.GenerateQuery(instance);
             if (queryResult is null) continue;
 
-            whereCaluse.Add(queryResult.Query);
-            sqlParameters.AddRange(queryResult.Parameters);
+            whereClause = whereClause.And(queryResult.Query);
         }
 
-        var sqlQuery = $"SELECT _{_table}.* FROM [{_schema}].[{_table}] AS _{_table}";
-        if (whereCaluse.Any())
-            sqlQuery = $"{sqlQuery} WHERE {string.Join(" AND ", whereCaluse)}";
-
-        return new QueryResult(sqlQuery, sqlParameters);
+        return new QueryResult<TEntity>(whereClause);
     }
 }
