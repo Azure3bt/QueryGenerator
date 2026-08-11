@@ -47,8 +47,7 @@ var queryFilter = new QueryFilter<InstrumentFilterDto, Instrument>().Init("basic
             [
                 new LongColumn<Instrument>()
                 {
-                    PropertyName = "HiddenPrice",
-                    ValueGetter = instrument => instrument.HiddenPrice ?? 0,
+                    PropertyName = nameof(Instrument.HiddenPrice),
                     QueryOperator = QueryOperator.GreaterThanOrEqual
                 }
             ]
@@ -72,8 +71,7 @@ var queryFilter = new QueryFilter<InstrumentFilterDto, Instrument>().Init("basic
             [
                 new LongColumn<Instrument>()
                 {
-                    PropertyName = "HiddenPrice",
-                    ValueGetter = instrument => instrument.HiddenPrice ?? 0,
+                    PropertyName = nameof(Instrument.HiddenPrice),
                     QueryOperator =  QueryOperator.LessThanOrEqual
                 }
             ]

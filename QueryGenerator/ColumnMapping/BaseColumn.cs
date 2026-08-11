@@ -8,7 +8,7 @@ namespace QueryGenerator.ColumnMapping
         public string PropertyName { get; set; }
         public Func<TSource, object> ValueGetter { get; set; }
         public QueryOperator QueryOperator { get; set; }
-        public abstract object GetValue(TSource model);
+        //public abstract object GetValue(TSource model);
         public Expression<Func<TSource, bool>> GetExpression(string propertyName, object value)
         {
             var parameter = Expression.Parameter(typeof(TSource), "x");

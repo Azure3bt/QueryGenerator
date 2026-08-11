@@ -5,10 +5,10 @@ namespace QueryGenerator.ColumnMapping
 {
     public class IntColumn<T> : BaseColumn<T>
     {
-        public override object GetValue(T model)
-        {
-            return (int)ValueGetter(model);
-        }
+        //public override object GetValue(T model)
+        //{
+        //    return (int)ValueGetter(model);
+        //}
 
         //public override bool IsEqual(object first, object second)
         //{

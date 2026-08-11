@@ -41,7 +41,7 @@ public class QueryFilterColumn<TModel, TEntity>
 
             foreach (var field in fields)
             {
-                var func = ((LongColumn<TEntity>)field).GetExpression(field.PropertyName, value);
+                var func = field.GetExpression(field.PropertyName, value);
                 whereClause = whereClause.Or(func);
             }
 
