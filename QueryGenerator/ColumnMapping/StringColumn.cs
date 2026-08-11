@@ -6,13 +6,5 @@
         {
             return ValueGetter(model);
         }
-
-        public override bool IsEqual(object first, object second)
-        {
-            if (first is null) return false;
-            var firstStr = first.ToString();
-            var secondStr = second.ToString();
-            return firstStr.Contains(secondStr);
-        }
     }
 }

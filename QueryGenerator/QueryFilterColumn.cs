@@ -1,6 +1,7 @@
 ﻿using QueryGenerator.ColumnMapping;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace QueryGenerator;
 
@@ -40,7 +41,8 @@ public class QueryFilterColumn<TModel, TEntity>
 
             foreach (var field in fields)
             {
-                whereClause = whereClause.Or(x => IsEqual(x, field, value));
+                var func = ((LongColumn<TEntity>)field).GetExpression(field.PropertyName, value);
+                whereClause = whereClause.Or(func);
             }
 
             //whereClause.Add($"({string.Join(" OR ", fields.Select(field => $"{field}{Operator.GetDisplayValue()}@{parameterName}"))})");
@@ -52,11 +54,5 @@ public class QueryFilterColumn<TModel, TEntity>
         }
 
         return default;
-    }
-
-    private bool IsEqual(TEntity entity, BaseColumn<TEntity> baseColumn, object second)
-    {
-        var value = baseColumn.GetValue(entity);
-        return baseColumn.IsEqual(value, second);
     }
 }

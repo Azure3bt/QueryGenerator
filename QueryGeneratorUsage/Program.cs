@@ -10,17 +10,17 @@ instrumentFilter.NewInstrumentFilter = "Amir";
 instrumentFilter.MarketName = "MarketName1";
 
 var queryFilter = new QueryFilter<InstrumentFilterDto, Instrument>().Init("basicinfo.v2", "instrument")
-    .AddFilter(
-        new QueryFilterColumn<InstrumentFilterDto, Instrument>(
-            [
-                new StringColumn<Instrument>()
-                {
-                    ValueGetter = instrument => instrument.Isin,
-                    QueryOperator = QueryOperator.Like,
-                }
-            ]
-        ).GetValue(instrument => instrument.Isin)
-    )
+    //.AddFilter(
+    //    new QueryFilterColumn<InstrumentFilterDto, Instrument>(
+    //        [
+    //            new StringColumn<Instrument>()
+    //            {
+    //                ValueGetter = instrument => instrument.Isin,
+    //                QueryOperator = QueryOperator.Like,
+    //            }
+    //        ]
+    //    ).GetValue(instrument => instrument.Isin)
+    //)
     //.AddFilter(
     //    new QueryFilterColumn<InstrumentFilterDto, Instrument>(
     //        [
@@ -47,6 +47,7 @@ var queryFilter = new QueryFilter<InstrumentFilterDto, Instrument>().Init("basic
             [
                 new LongColumn<Instrument>()
                 {
+                    PropertyName = "HiddenPrice",
                     ValueGetter = instrument => instrument.HiddenPrice ?? 0,
                     QueryOperator = QueryOperator.GreaterThanOrEqual
                 }
@@ -71,6 +72,7 @@ var queryFilter = new QueryFilter<InstrumentFilterDto, Instrument>().Init("basic
             [
                 new LongColumn<Instrument>()
                 {
+                    PropertyName = "HiddenPrice",
                     ValueGetter = instrument => instrument.HiddenPrice ?? 0,
                     QueryOperator =  QueryOperator.LessThanOrEqual
                 }
@@ -80,9 +82,12 @@ var queryFilter = new QueryFilter<InstrumentFilterDto, Instrument>().Init("basic
     )
     .Build(instrumentFilter);
 
-var instruments = GenerateInstruments.Generate();
 
-foreach(var instrument in instruments.Where(queryFilter.Query))
+using var dbContext = new InstrumentContext();
+await dbContext.Database.EnsureDeletedAsync();
+await dbContext.Database.EnsureCreatedAsync();
+
+foreach(var instrument in dbContext.Instruments.Where(queryFilter.Query))
 {
     Console.WriteLine(instrument.Name);
 }
